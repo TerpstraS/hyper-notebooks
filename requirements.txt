@@ -2,7 +2,7 @@ numpy
 scipy
 netCDF4
 cython
--e git://github.com/abrupt-climate/hyper-canny#egg=hyper-canny
+-e git://github.com/TerpstraS/hyper-canny#egg=hyper-canny
 jupyter
 matplotlib
 cartopy
