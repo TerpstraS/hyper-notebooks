@@ -51,7 +51,7 @@ def maybe_convert_lon_lat(fname):
     ds_disk = xr.open_dataset(fpath)
     ds_disk["lat"] = ds_disk.y
     ds_disk["lon"] = ds_disk.x
-    fname = ".".join(converted, fname)
+    fname = ".".join(["converted", fname])
     fpath = os.path.join(
         DIR_DATA,
         "converted.CMIP.NOAA-GFDL.GFDL-ESM4.piControl.r1i1p1f1.SImon.siconc.gr.nc"
@@ -63,9 +63,10 @@ def maybe_convert_lon_lat(fname):
 if __name__ == '__main__':
     variable = "siconc"      # variable from CMIP6
     model = "GFDL-ESM4"      # CMIP6 model
+    month = 13
     fname = "CMIP.NOAA-GFDL.GFDL-ESM4.piControl.r1i1p1f1.SImon.siconc.gr.nc"
     fpath, fname = maybe_convert_lon_lat(fname)
-    print(f"Using {fname}\n")
+    print("Using {}\n".format(fname))
 
     # download dataset (check how the [month-1::12] selection exactly works)
     data_set = DataSet.cmip6(
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     taper_masked_area(data, [0, 5, 5], 50)
 
     # smoothing is not applied in time, 5 grid boxes wide in space (lat and lon),
-    iteration: 50 times
+    # iteration: 50 times
     smooth_data = gaussian_filter(box, data, [sigma_t, sigma_d, sigma_d])
 
     # Careful! Not calibrated!
