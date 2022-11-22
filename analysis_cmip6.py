@@ -78,10 +78,13 @@ if __name__ == '__main__':
 
     data_set = data_set[month-1::12]
 
-    print(data_set.files[0].attrs)
+    data = data_set.files[0].data
+
+    for name, variable in data.variables.items():
+        for attrname in variable.ncattrs():
+            print("{} -- {}".format(attrname, getattr(variable, attrname)))
 
     box = data_set.box
-
     print(box)
 
     if not box.rectangular:
