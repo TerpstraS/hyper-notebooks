@@ -78,6 +78,8 @@ if __name__ == '__main__':
 
     data_set = data_set[month-1::12]
 
+    print(data_set)
+
     exit(0)
 
     # calibration of the aspect ratio is based on which quartile of the gradients
