@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     data_set = data_set[month-1::12]
 
-    print(data_set.files)
+    print(data_set.files[0].attrs)
 
     box = data_set.box
 
