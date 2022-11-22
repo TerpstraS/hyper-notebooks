@@ -78,7 +78,14 @@ if __name__ == '__main__':
 
     data_set = data_set[month-1::12]
 
-    print(data_set)
+    print(data_set.files)
+
+    box = data_set.box
+
+    print(box)
+
+    if not box.rectangular:
+        print("box not rectangular")
 
     exit(0)
 
