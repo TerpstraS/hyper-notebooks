@@ -72,7 +72,13 @@ if __name__ == '__main__':
     data_set = DataSet.cmip6(
         path=Path(fpath),
         variable=variable
-    )[month-1::12]
+    )
+
+    print(data_set)
+
+    data_set = data_set[month-1::12]
+
+    exit(0)
 
     # calibration of the aspect ratio is based on which quartile of the gradients
     # for climate models, use 3, for idealised test cases, use 4
@@ -107,6 +113,7 @@ if __name__ == '__main__':
 
     # smooth over continental boundaries (only spatial, not time dimension)
     data = data_set.data
+    print(data)
     taper_masked_area(data, [0, 5, 5], 50)
 
     # smoothing is not applied in time, 5 grid boxes wide in space (lat and lon),
