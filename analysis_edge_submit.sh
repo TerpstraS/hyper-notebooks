@@ -2,7 +2,7 @@
 #
 #SBATCH -J PYTEST
 #SBATCH -p short
-#SBATCH -t 0:15:00
+#SBATCH -t 0:05:00
 #SBATCH -n 1
 #SBATCH -o log_pytest.%j.o
 #SBATCH -e log_pytest.%j.e
