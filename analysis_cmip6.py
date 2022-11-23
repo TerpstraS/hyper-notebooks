@@ -16,6 +16,8 @@ from pathlib import Path
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib
+import numpy as np
 
 import netCDF4
 from scipy import ndimage, stats
@@ -33,6 +35,7 @@ from hypercc.filters import (taper_masked_area, gaussian_filter, sobel_filter)
 from hypercc.calibration import (calibrate_sobel)
 
 DIR_DATA = os.path.join("/nethome", "terps020", "cmip6", "data")
+DIR_FIG = os.path.join("/nethome", "terps020", "cmip6", "figures")
 
 
 def maybe_convert_lon_lat(fname):
@@ -61,11 +64,15 @@ def maybe_convert_lon_lat(fname):
 
 
 if __name__ == '__main__':
-    variable = "siconc"      # variable from CMIP6
-    model = "GFDL-ESM4"      # CMIP6 model
+    variable = "tas"      # variable from CMIP6
+    model = "IPSL.IPSL-CM6A-LR"      # CMIP6 model
     month = 13
-    fname = "CMIP.NOAA-GFDL.GFDL-ESM4.piControl.r1i1p1f1.SImon.siconc.gr.nc"
-    fpath, fname = maybe_convert_lon_lat(fname)
+    fname = "CMIP.IPSL.IPSL-CM6A-LR.1pctCO2.r1i1p1f1.Amon.tas.gr.nc"
+    fpath = os.path.join(
+        DIR_DATA,
+        fname
+    )
+    # fpath, fname = maybe_convert_lon_lat(fname)
     print("Using {}\n".format(fname))
 
     # download dataset (check how the [month-1::12] selection exactly works)
@@ -74,23 +81,24 @@ if __name__ == '__main__':
         variable=variable
     )
 
-    print(data_set)
+    # print(data_set)
 
     data_set = data_set[month-1::12]
 
-    data = data_set.files[0].data
-
-    for name, variable in data.variables.items():
-        for attrname in variable.ncattrs():
-            print("{} -- {}".format(attrname, getattr(variable, attrname)))
+    #data = data_set.files[0].data
+    #print("\n\nPrinting data...\n")
+    #print(data)
+    #print("\nFinished printing data...\n\n")
+    #for name, variable in data.variables.items():
+    #    for attrname in variable.ncattrs():
+    #        print("{} -- {}".format(attrname, getattr(variable, attrname)))
 
     box = data_set.box
-    print(box)
+    # print(box)
 
     if not box.rectangular:
         print("box not rectangular")
-
-    exit(0)
+        exit(-1)
 
     # calibration of the aspect ratio is based on which quartile of the gradients
     # for climate models, use 3, for idealised test cases, use 4
@@ -125,7 +133,26 @@ if __name__ == '__main__':
 
     # smooth over continental boundaries (only spatial, not time dimension)
     data = data_set.data
-    print(data)
+    yearly_box = box[month-1::12]
+    #print("\n\nPrinting data.data...\n")
+    #data = data_set.files[0].data.variables["tas"]
+    #print(data_set.files[0].data.variables["tas"])
+    #print("\nmissing_value\n")
+    #missing_value = data_set.files[0].data.variables["tas"]._FillValue
+    #print(data_set.files[0].data.variables["tas"]._FillValue)
+    #print("masked_data\n")
+    #import numpy as np
+    #masked_data = np.ma.masked_equal(data, missing_value)
+    #print(masked_data)
+    #print("masked_data.data\n")
+    #if masked_data.mask is np.ma.nomask:
+    #    print("\nnot masked data indeed\n")
+    #    print(masked_data.data)
+    #    masked_data = masked_data.data
+    #print("\nsqueezed:\n")
+    #masked_data = masked_data.squeeze()
+    #print(masked_data)
+    #masked_data = np.ma.masked_array(masked_data)
     taper_masked_area(data, [0, 5, 5], 50)
 
     # smoothing is not applied in time, 5 grid boxes wide in space (lat and lon),
@@ -181,13 +208,16 @@ if __name__ == '__main__':
     big_enough = [x for x in range(1, n_features+1) if (labels==x).sum() > 100]
     print(big_enough)
     labels = np.where(np.isin(labels, big_enough), labels, 0)
-
+    print(labels.max(axis=0))
+    print(np.sum(m, axis=0))
     #plot_plate_carree(yearly_box, labels.max(axis=0), cmap=my_cmap, vmin=0.1)
-    plot_orthographic_np(yearly_box, labels.max(axis=0), cmap=my_cmap, vmin=0.1)
+    fig = plot_orthographic_np(yearly_box, labels.max(axis=0), cmap=my_cmap, vmin=0.1)
+    fig.savefig(os.path.join(DIR_FIG, "labels_orthographic_np") + ".pdf", dpi=300, format="pdf")
 
     ## event count plot: how many years are part of the edge at each grid cell
     #plot_plate_carree(yearly_box, np.sum(m, axis=0), cmap=my_cmap, vmin=0.1)
-    plot_orthographic_np(yearly_box, np.sum(m, axis=0), cmap=my_cmap, vmin=0.1)
+    fig = plot_orthographic_np(yearly_box, np.sum(m, axis=0), cmap=my_cmap, vmin=0.1)
+    fig.savefig(os.path.join(DIR_FIG, "event_count_ortographic_np") + ".pdf", dpi=300, format="pdf")
     #
     # ## calculate maximum excess time gradient at each grid cell (i.e. gradient after removing the mean trend)
     # tgrad=sb[0]/sb[3]
