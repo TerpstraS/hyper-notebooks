@@ -255,20 +255,20 @@ if __name__ == '__main__':
             chunk1_years=years[0:index-cutoff_length]
             chunk2_years=years[index+cutoff_length+1:]
 
-            if size(chunk1_data) > chunk_max_length:
-                chunk1_start=size(chunk1_data)-chunk_max_length
+            if np.size(chunk1_data) > chunk_max_length:
+                chunk1_start=np.size(chunk1_data)-chunk_max_length
             else:
                 chunk1_start=0
-            if size(chunk2_data) > chunk_max_length:
+            if np.size(chunk2_data) > chunk_max_length:
                 chunk2_end=chunk_max_length
             else:
-                chunk2_end=size(chunk2_data)
+                chunk2_end=np.size(chunk2_data)
 
             chunk1_data_short=chunk1_data[chunk1_start:]
             chunk2_data_short=chunk2_data[0:chunk2_end]
 
-            N1=size(chunk1_data_short)
-            N2=size(chunk2_data_short)
+            N1=np.size(chunk1_data_short)
+            N2=np.size(chunk2_data_short)
 
             if not ((N1 < chunk_min_length) or (N2 < chunk_min_length)):
                 chunk1_years_short=chunk1_years[chunk1_start:]-years[dim0]
