@@ -244,6 +244,8 @@ if __name__ == '__main__':
 
     shapeidx=np.shape(idx)
     nofresults=shapeidx[1]
+    print(nofresults)
+    exit(0)
 
     for result in range(nofresults):
         [dim0,dim1,dim2]=indices[:,result]
