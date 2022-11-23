@@ -218,137 +218,141 @@ if __name__ == '__main__':
     #plot_plate_carree(yearly_box, np.sum(m, axis=0), cmap=my_cmap, vmin=0.1)
     fig = plot_orthographic_np(yearly_box, np.sum(m, axis=0), cmap=my_cmap, vmin=0.1)
     fig.savefig(os.path.join(DIR_FIG, "event_count_ortographic_np") + ".pdf", dpi=300, format="pdf")
-    #
-    # ## calculate maximum excess time gradient at each grid cell (i.e. gradient after removing the mean trend)
-    # tgrad=sb[0]/sb[3]
-    # maxm=np.nanmax(m, axis=0)
-    #
-    # tgrad_residual = tgrad - np.mean(tgrad, axis=0)   # remove time mean
-    # maxTgrad = np.max(abs(tgrad_residual), axis=0)    # maximum of time gradient
-    # maxTgrad = maxTgrad * maxm
-    #
-    # #plot_plate_carree(box, maxTgrad, cmap=my_cmap, vmin=1e-30)
-    # plot_orthographic_np(box, maxTgrad, cmap=my_cmap, vmin=1e-30)
-    #
-    # cutoff_length=2       # how many years to either side of the abrupt shift are cut off (the index of the event itself is always cut off)
-    # chunk_max_length=30   # maximum length of chunk of time series to either side of the event
-    # chunk_min_length=15   # minimum length of these chunks
-    #
-    # years = np.array([d.year for d in box.dates])
-    # edges = cp_double_threshold(data=dat, mask=thinned.transpose([2,1,0]), a=1/upper_threshold, b=1/lower_threshold)
-    # m = edges.transpose([2, 1, 0])
-    # idx = np.where(m)
-    # indices=np.asarray(idx)
-    # abruptness3d=m*0.0
-    #
-    # shapeidx=np.shape(idx)
-    # nofresults=shapeidx[1]
-    #
-    # for result in range(nofresults):
-    #     [dim0,dim1,dim2]=indices[:,result]
-    #
-    #     if m[dim0, dim1, dim2] == 1:
-    #         index=dim0
-    #         chunk1_data=data[0:index-cutoff_length,dim1,dim2]
-    #         chunk2_data=data[index+cutoff_length+1:,dim1,dim2]
-    #         chunk1_years=years[0:index-cutoff_length]
-    #         chunk2_years=years[index+cutoff_length+1:]
-    #
-    #         if size(chunk1_data) > chunk_max_length:
-    #             chunk1_start=size(chunk1_data)-chunk_max_length
-    #         else:
-    #             chunk1_start=0
-    #         if size(chunk2_data) > chunk_max_length:
-    #             chunk2_end=chunk_max_length
-    #         else:
-    #             chunk2_end=size(chunk2_data)
-    #
-    #         chunk1_data_short=chunk1_data[chunk1_start:]
-    #         chunk2_data_short=chunk2_data[0:chunk2_end]
-    #
-    #         N1=size(chunk1_data_short)
-    #         N2=size(chunk2_data_short)
-    #
-    #         if not ((N1 < chunk_min_length) or (N2 < chunk_min_length)):
-    #             chunk1_years_short=chunk1_years[chunk1_start:]-years[dim0]
-    #             chunk2_years_short=chunk2_years[0:chunk2_end]-years[dim0]
-    #
-    #             slope_chunk1, intercept_chunk1, r_value, p_value, std_err = stats.linregress(chunk1_years_short, chunk1_data_short)
-    #             chunk1_regline=intercept_chunk1 + slope_chunk1*chunk1_years_short
-    #
-    #             slope_chunk2, intercept_chunk2, r_value, p_value, std_err = stats.linregress(chunk2_years_short, chunk2_data_short)
-    #             chunk2_regline=intercept_chunk2 + slope_chunk2*chunk2_years_short
-    #
-    #             mean_std=(np.nanstd(chunk1_data_short)+np.nanstd(chunk2_data_short))/2
-    #             abruptness3d[dim0,dim1,dim2]=abs(intercept_chunk1-intercept_chunk2)/mean_std
-    #
-    # abruptness = np.max(abruptness3d,axis=0)
-    #
-    # # map of the maximum abruptness at each point
-    # #plot_plate_carree(box, abruptness, cmap=my_cmap, vmin=1e-30)
-    # plot_orthographic_np(box, abruptness, cmap=my_cmap, vmin=1e-30)
-    #
-    # ## year in which the maximum of abruptness occurs at each point
-    # idx = np.where(m)
-    # indices=np.asarray(idx)
-    #
-    # mask_max=m*0
-    #
-    # shapeidx=np.shape(idx)
-    # nofresults=shapeidx[1]
-    #
-    # # mask_max is like m but only shows the time points with the maximum abruptness at each grid cell
-    # for result in range(nofresults):
-    #     [dim0,dim1,dim2]=indices[:,result]
-    #     if ( abruptness3d[dim0, dim1, dim2] == abruptness[dim1,dim2]) and abruptness[dim1,dim2] > 0:
-    #         mask_max[dim0, dim1, dim2] = 1
-    #
-    #
-    # years_maxpeak=(years[:,None,None]*mask_max).sum(axis=0)
-    #
-    # minval = np.min(years_maxpeak[np.nonzero(years_maxpeak)])
-    # maxval= np.max(years_maxpeak)
-    # #plot_plate_carree(yearly_box, years_maxpeak,  cmap=my_cmap, vmin=minval, vmax=maxval) #, vmin=2000, vmax=2200)
-    # plot_orthographic_np(yearly_box, years_maxpeak,  cmap=my_cmap, vmin=minval, vmax=maxval)
-    #
-    # ## Show (part of) the time series of the original data at the grid cell with the largest abruptness
-    # # red: original data
-    # # blue: smoothed data (in space and time)
-    # # red vertical dashed line: identification of the position of the edge in time (based on smoothed data)
-    #
-    # lonind=np.nanargmax(np.nanmax(abruptness, axis=0))
-    # latind=np.nanargmax(np.nanmax(abruptness, axis=1))
-    #
-    # tindex_ini=0
-    # tindex_fin=2200-2006
-    # years_window=years[tindex_ini:tindex_fin]
-    #
-    # ts=data[tindex_ini:tindex_fin,latind,lonind]
-    # abruptness_max=abruptness[latind,lonind]
-    # ts_smooth=smooth_data[tindex_ini:tindex_fin,latind,lonind]
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.plot(years_window, ts, 'k', years_window, ts_smooth, 'b--')
-    #
-    # ## determine year of abrupt shift
-    # index=np.where(abruptness3d[:,latind,lonind]==abruptness_max)
-    #
-    # ax.axvline(x=years_window[index], ymin=0, ymax=1, color='r', linestyle="--")
-    #
-    # plt.ylabel('Sea-ice concentration (%)')
-    # plt.xlabel('Time [year]')
-    # matplotlib.rc('xtick', labelsize=20)
-    # matplotlib.rc('ytick', labelsize=20)
-    #
-    # ax.tick_params(axis='both', which='major', labelsize=26)
-    #
-    # ymin=min(ts)
-    # ymax=max(ts)
-    # xmin=min(years_window)
-    # xmax=max(years_window)
-    # xrange=xmax-xmin
-    # yrange=ymax-ymin
-    # frac=0.025
-    # ypos=ymax-0.025*yrange
-    # xpos=xmin+0.01*xrange
-    # ax.text(xpos,ypos,'abruptness: '+ '{:f}'.format(abruptness_max),color='r', size=30)
+
+    ## calculate maximum excess time gradient at each grid cell (i.e. gradient after removing the mean trend)
+    tgrad=sb[0]/sb[3]
+    maxm=np.nanmax(m, axis=0)
+
+    tgrad_residual = tgrad - np.mean(tgrad, axis=0)   # remove time mean
+    maxTgrad = np.max(abs(tgrad_residual), axis=0)    # maximum of time gradient
+    maxTgrad = maxTgrad * maxm
+
+    #plot_plate_carree(box, maxTgrad, cmap=my_cmap, vmin=1e-30)
+    fig = plot_orthographic_np(box, maxTgrad, cmap=my_cmap, vmin=1e-30)
+    fig.savefig(os.path.join(DIR_FIG, "maxTgrad_ortographic_np") + ".pdf", dpi=300, format="pdf")
+
+    cutoff_length=2       # how many years to either side of the abrupt shift are cut off (the index of the event itself is always cut off)
+    chunk_max_length=30   # maximum length of chunk of time series to either side of the event
+    chunk_min_length=15   # minimum length of these chunks
+
+    years = np.array([d.year for d in box.dates])
+    edges = cp_double_threshold(data=dat, mask=thinned.transpose([2,1,0]), a=1/upper_threshold, b=1/lower_threshold)
+    m = edges.transpose([2, 1, 0])
+    idx = np.where(m)
+    indices=np.asarray(idx)
+    abruptness3d=m*0.0
+
+    shapeidx=np.shape(idx)
+    nofresults=shapeidx[1]
+
+    for result in range(nofresults):
+        [dim0,dim1,dim2]=indices[:,result]
+
+        if m[dim0, dim1, dim2] == 1:
+            index=dim0
+            chunk1_data=data[0:index-cutoff_length,dim1,dim2]
+            chunk2_data=data[index+cutoff_length+1:,dim1,dim2]
+            chunk1_years=years[0:index-cutoff_length]
+            chunk2_years=years[index+cutoff_length+1:]
+
+            if size(chunk1_data) > chunk_max_length:
+                chunk1_start=size(chunk1_data)-chunk_max_length
+            else:
+                chunk1_start=0
+            if size(chunk2_data) > chunk_max_length:
+                chunk2_end=chunk_max_length
+            else:
+                chunk2_end=size(chunk2_data)
+
+            chunk1_data_short=chunk1_data[chunk1_start:]
+            chunk2_data_short=chunk2_data[0:chunk2_end]
+
+            N1=size(chunk1_data_short)
+            N2=size(chunk2_data_short)
+
+            if not ((N1 < chunk_min_length) or (N2 < chunk_min_length)):
+                chunk1_years_short=chunk1_years[chunk1_start:]-years[dim0]
+                chunk2_years_short=chunk2_years[0:chunk2_end]-years[dim0]
+
+                slope_chunk1, intercept_chunk1, r_value, p_value, std_err = stats.linregress(chunk1_years_short, chunk1_data_short)
+                chunk1_regline=intercept_chunk1 + slope_chunk1*chunk1_years_short
+
+                slope_chunk2, intercept_chunk2, r_value, p_value, std_err = stats.linregress(chunk2_years_short, chunk2_data_short)
+                chunk2_regline=intercept_chunk2 + slope_chunk2*chunk2_years_short
+
+                mean_std=(np.nanstd(chunk1_data_short)+np.nanstd(chunk2_data_short))/2
+                abruptness3d[dim0,dim1,dim2]=abs(intercept_chunk1-intercept_chunk2)/mean_std
+
+    abruptness = np.max(abruptness3d,axis=0)
+
+    # map of the maximum abruptness at each point
+    #plot_plate_carree(box, abruptness, cmap=my_cmap, vmin=1e-30)
+    fig = plot_orthographic_np(box, abruptness, cmap=my_cmap, vmin=1e-30)
+    fig.savefig(os.path.join(DIR_FIG, "abruptness_ortographic_np") + ".pdf", dpi=300, format="pdf")
+
+    ## year in which the maximum of abruptness occurs at each point
+    idx = np.where(m)
+    indices=np.asarray(idx)
+
+    mask_max=m*0
+
+    shapeidx=np.shape(idx)
+    nofresults=shapeidx[1]
+
+    # mask_max is like m but only shows the time points with the maximum abruptness at each grid cell
+    for result in range(nofresults):
+        [dim0,dim1,dim2]=indices[:,result]
+        if ( abruptness3d[dim0, dim1, dim2] == abruptness[dim1,dim2]) and abruptness[dim1,dim2] > 0:
+            mask_max[dim0, dim1, dim2] = 1
+
+
+    years_maxpeak=(years[:,None,None]*mask_max).sum(axis=0)
+
+    minval = np.min(years_maxpeak[np.nonzero(years_maxpeak)])
+    maxval= np.max(years_maxpeak)
+    #plot_plate_carree(yearly_box, years_maxpeak,  cmap=my_cmap, vmin=minval, vmax=maxval) #, vmin=2000, vmax=2200)
+    fig = plot_orthographic_np(yearly_box, years_maxpeak,  cmap=my_cmap, vmin=minval, vmax=maxval)
+    fig.savefig(os.path.join(DIR_FIG, "years_maxpeak_ortographic_np") + ".pdf", dpi=300, format="pdf")
+
+    ## Show (part of) the time series of the original data at the grid cell with the largest abruptness
+    # red: original data
+    # blue: smoothed data (in space and time)
+    # red vertical dashed line: identification of the position of the edge in time (based on smoothed data)
+
+    lonind=np.nanargmax(np.nanmax(abruptness, axis=0))
+    latind=np.nanargmax(np.nanmax(abruptness, axis=1))
+
+    tindex_ini=0
+    tindex_fin=2200-2006
+    years_window=years[tindex_ini:tindex_fin]
+
+    ts=data[tindex_ini:tindex_fin,latind,lonind]
+    abruptness_max=abruptness[latind,lonind]
+    ts_smooth=smooth_data[tindex_ini:tindex_fin,latind,lonind]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(years_window, ts, 'k', years_window, ts_smooth, 'b--')
+
+    ## determine year of abrupt shift
+    index=np.where(abruptness3d[:,latind,lonind]==abruptness_max)
+
+    ax.axvline(x=years_window[index], ymin=0, ymax=1, color='r', linestyle="--")
+
+    plt.ylabel('Sea-ice concentration (%)')
+    plt.xlabel('Time [year]')
+    matplotlib.rc('xtick', labelsize=20)
+    matplotlib.rc('ytick', labelsize=20)
+
+    ax.tick_params(axis='both', which='major', labelsize=26)
+
+    ymin=min(ts)
+    ymax=max(ts)
+    xmin=min(years_window)
+    xmax=max(years_window)
+    xrange=xmax-xmin
+    yrange=ymax-ymin
+    frac=0.025
+    ypos=ymax-0.025*yrange
+    xpos=xmin+0.01*xrange
+    ax.text(xpos,ypos,'abruptness: '+ '{:f}'.format(abruptness_max),color='r', size=30)
+    fig.savefig(os.path.join(DIR_FIG, "ts") + ".pdf", dpi=300, format="pdf")
