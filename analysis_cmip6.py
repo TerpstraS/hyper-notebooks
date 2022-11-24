@@ -68,10 +68,9 @@ if __name__ == '__main__':
     model = "IPSL.IPSL-CM6A-LR"      # CMIP6 model
     month = 13
     fname = "CMIP.IPSL.IPSL-CM6A-LR.1pctCO2.r1i1p1f1.Amon.tas.gr.nc"
-    fpath = os.path.join(
-        DIR_DATA,
-        fname
-    )
+    fpath = os.path.join(DIR_DATA, fname)
+    fname_piControl = "CMIP.IPSL.IPSL-CM6A-LR.piControl.r1i1p1f1.Amon.tas.gr.nc"
+    fpath_piControl = os.path.join(DIR_DATA, fname_piControl)
     # fpath, fname = maybe_convert_lon_lat(fname)
     print("Using {}\n".format(fname))
 
@@ -159,23 +158,168 @@ if __name__ == '__main__':
     # iteration: 50 times
     smooth_data = gaussian_filter(box, data, [sigma_t, sigma_d, sigma_d])
 
-    # Careful! Not calibrated!
+    # calibration
+    control_set = DataSet.cmip6(
+        path=Path(fpath_piControl),
+        variable=variable
+    )[month-1::12]
+    control_data = control_set.data
+    control_box = control_set.box
+    del control_set
+
+    # smooth over continental boundaries to avoid detecting edges at the coastlines
+    taper_masked_area(control_data, [0, 5, 5], 50)
+    smooth_control_data = gaussian_filter(control_box, control_data, [sigma_t, sigma_d, sigma_d])
+
     # scaling_factor is the aspect ratio between space and time
     # Here it is initialised as 1, but will be calibrated automatically later
     print("# WARNING: scaling_factor for Sobel operator is not calibrated...")
-    scaling_factor = unit('30 km/year')
-    sobel_delta_t = unit('10 year')                    # time scale
+    scaling_factor = unit('1 km/year')
+    sobel_delta_t = unit('1 year')                    # time scale
     sobel_delta_d = sobel_delta_t * scaling_factor    # length scale
     sobel_weights = [sobel_delta_t, sobel_delta_d, sobel_delta_d]
+
+    calibration = calibrate_sobel(
+        quartile_calibration, control_box, smooth_control_data, sobel_delta_t,
+        sobel_delta_d
+    )
+
+    for k, v in calibration.items():
+        print("{:10}: {}".format(k, v))
+    print("recommended setting for gamma: ", calibration['gamma'][quartile_calibration])
+
+    sb_control = sobel_filter(control_box, smooth_control_data, weight=sobel_weights)
+    pixel_sb_control = sobel_filter(control_box, smooth_control_data, physical=False)
+    pixel_sb_control[3] = sb_control[3]
+    signal_control = (1.0 / sb_control[3])
+
+    gamma_cal = calibration['gamma'][quartile_calibration]   #default in hypercc: 3
+    scaling_factor = gamma_cal * unit('1 km/year')
+    sobel_delta_d = sobel_delta_t * scaling_factor
+    sobel_weights = [sobel_delta_t, sobel_delta_d, sobel_delta_d]
+
+    ## gradients in physical units
+    # space gradient in K / km
+    sgrad_phys = np.sqrt(sb_control[1]**2 + sb_control[2]**2) / sb_control[3]
+
+    # time gradient in K / year
+    tgrad = sb_control[0]/sb_control[3]
+
+    ##### scatter diagram of gradients in piControl
+    ## scatter plot of gradients in space and time:
+    fig = plt.figure()
+    plt.scatter(sgrad_phys, tgrad, s=0.1, marker = '.');
+
+    plt.xlabel('K / km', fontsize=32)
+    plt.ylabel('K / yr', fontsize=32)
+
+    plt.tick_params(axis='both', which='major', labelsize=32)
+
+    #### set axis ranges
+    border=0.15
+    Smin=np.min(sgrad_phys)-(np.max(sgrad_phys)-np.min(sgrad_phys))*border
+    Smax=np.max(sgrad_phys)+(np.max(sgrad_phys)-np.min(sgrad_phys))*border
+    #Tmin=np.min(tgrad)-(np.max(tgrad)-np.min(tgrad))*border
+    #Tmax=np.max(tgrad)+(np.max(tgrad)-np.min(tgrad))*border
+
+    # for MPI-ESM temperature case
+    #Smin=-0.01
+    #Smax=0.6
+    Tmin=-0.6
+    Tmax=0.6
+
+    plt.xlim(Smin, Smax)
+    plt.ylim(Tmin, Tmax)
+
+    ## max space gradient (4th quartile)
+    plt.axvline(x=np.max(sgrad_phys), ymin=0, ymax=1, color='r', linestyle="-")
+
+    ## max time gradient
+    plt.axhline(xmin=0, xmax=1, y=np.max(np.abs(tgrad)), color='r', linestyle="-")
+    plt.axhline(xmin=0, xmax=1, y=-np.max(np.abs(tgrad)), color='r', linestyle="-")
+
+    # selected quartile
+    plt.axvline(x=calibration['distance'][quartile_calibration], ymin=0, ymax=1, color='g', linestyle="--")
+    plt.axhline(xmin=0, xmax=1, y=calibration['time'][quartile_calibration], color='g', linestyle="--")
+    plt.axhline(xmin=0, xmax=1, y=-calibration['time'][quartile_calibration], color='g', linestyle="--")
+    fig.savefig(os.path.join(DIR_FIG, "gradients_piControl") + ".pdf", dpi=300, format="pdf")
+
+    ## defining the threshold parameters for hysteresis thresholding:
+    # each pixel with a the gradient above the upper threshold is labeled as a strong edge.
+    # each pixel that is above the lower threshold is labeled as a weak edge.
+    # all strong edges are kept as edges.
+    # all weak edges that are connected to strong edges are kept as edges, the others are dropped.
+
+    # set upper threshold as the combination of the maxima of gradients in space and time
+    mag_quartiles=np.sqrt((calibration['distance'] * gamma_cal)**2 + calibration['time']**2)
+    upper_threshold = mag_quartiles[4]
+
+    # set lower threshold to be half the upper threshold
+    lower_threshold = upper_threshold/2
+
+    ## equivalent space gradient in °C / yr (scaling_factor is in kilometer/year)
+    sgrad_scaled = sgrad_phys * gamma_cal                   # K/km * km/yr => K/yr
+
+    ##### scatter diagram of gradients in piControl as calibrated units
+
+    #matplotlib.rcParams['figure.figsize'] = (20, 20)
+    #matplotlib.rcParams.update({'font.size': 40})
+    matplotlib.rc('xtick', labelsize=32)
+    matplotlib.rc('ytick', labelsize=32)
+    plt.tick_params(axis='both', which='major', labelsize=32)
+
+    ## scatter plot of gradients in space and time:
+    fig = plt.figure()
+    plt.scatter(sgrad_scaled, tgrad, s=0.1, marker = '.');
+
+    plt.xlabel('K / yr')
+    plt.ylabel('K / yr')
+
+    ## max space gradient (rescaled)
+    plt.axvline(x=np.max(sgrad_scaled), ymin=0, ymax=1, color='r', linestyle="-")
+
+    ## max time gradient
+    plt.axhline(xmin=0, xmax=1, y=np.max(np.abs(tgrad)), color='r', linestyle="-")
+    plt.axhline(xmin=0, xmax=1, y=-np.max(np.abs(tgrad)), color='r', linestyle="-")
+
+    # quartiles
+    plt.axvline(x=calibration['distance'][quartile_calibration]*gamma_cal, ymin=0, ymax=1, color='g', linestyle="--")
+    plt.axhline(xmin=0, xmax=1, y=calibration['time'][quartile_calibration], color='g', linestyle="--")
+    plt.axhline(xmin=0, xmax=1, y=-calibration['time'][quartile_calibration], color='g', linestyle="--")
+
+
+    #### circle showing the threshold values of hysteresis thresholding
+    dp = np.linspace(-np.pi/2, np.pi/2, 100)
+
+    radius=upper_threshold
+    dt = radius * sin(dp)
+    dx = radius * cos(dp)
+    plt.plot(dx, dt, c='k')
+
+    ## circle showing the lower threshold:
+    radius=lower_threshold
+    dt = radius * sin(dp)
+    dx = radius * cos(dp)
+    plt.plot(dx, dt, c='k')
+
+    #### set axis ranges (adjusted to the specific example of MPI-ESM, temp, mon 4)
+    Smin=-0.01
+    Smax=0.6
+    Tmin=-0.6
+    Tmax=0.6
+
+    plt.xlim(Smin, Smax)
+    plt.ylim(Tmin, Tmax)
+    fig.savefig(os.path.join(DIR_FIG, "gradients_piControl_calibrated_units") + ".pdf", dpi=300, format="pdf")
 
     sb = sobel_filter(box, smooth_data, weight=sobel_weights)
     pixel_sb = sobel_filter(box, smooth_data, physical=False)
     pixel_sb[3] = sb[3]
 
-    # Careful! Not calibrated!
-    print("# WARNING: hysteresis thresholds are not calibrated...")
-    upper_threshold = 0.6
-    lower_threshold = 0.3
+    # # Careful! Not calibrated!
+    # print("# WARNING: hysteresis thresholds are not calibrated...")
+    # upper_threshold = 0.6
+    # lower_threshold = 0.3
 
     # use directions of pixel based sobel transform and magnitudes from calibrated physical sobel.
     dat = pixel_sb.transpose([3,2,1,0]).copy()
@@ -192,8 +336,10 @@ if __name__ == '__main__':
     m = edges.transpose([2, 1, 0])
 
     ## a first look at the data (first time step)
-    plot_mollweide(box, data_set.data[0])
-    plot_orthographic_np(box, data_set.data[0])
+    fig = plot_mollweide(box, data_set.data[0])
+    fig.savefig(os.path.join(DIR_FIG, "data_time0_mollweide") + ".pdf", dpi=300, format="pdf")
+    fig = plot_orthographic_np(box, data_set.data[0])
+    fig.savefig(os.path.join(DIR_FIG, "data_time0orthographic_np") + ".pdf", dpi=300, format="pdf")
 
     ## define colour scale for plotting with white where variable is 0
     my_cmap = matplotlib.cm.get_cmap('rainbow')
@@ -291,8 +437,6 @@ if __name__ == '__main__':
     #plot_plate_carree(box, abruptness, cmap=my_cmap, vmin=1e-30)
     fig = plot_orthographic_np(box, abruptness, cmap=my_cmap, vmin=1e-30)
     fig.savefig(os.path.join(DIR_FIG, "abruptness_ortographic_np") + ".pdf", dpi=300, format="pdf")
-    print("ola")
-    exit(0)
 
     ## year in which the maximum of abruptness occurs at each point
     idx = np.where(m)
