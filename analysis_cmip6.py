@@ -245,7 +245,6 @@ if __name__ == '__main__':
     shapeidx=np.shape(idx)
     nofresults=shapeidx[1]
     print(nofresults)
-    exit(0)
 
     for result in range(nofresults):
         [dim0,dim1,dim2]=indices[:,result]
@@ -286,11 +285,14 @@ if __name__ == '__main__':
                 abruptness3d[dim0,dim1,dim2]=abs(intercept_chunk1-intercept_chunk2)/mean_std
 
     abruptness = np.max(abruptness3d,axis=0)
+    print(abruptness)
 
     # map of the maximum abruptness at each point
     #plot_plate_carree(box, abruptness, cmap=my_cmap, vmin=1e-30)
     fig = plot_orthographic_np(box, abruptness, cmap=my_cmap, vmin=1e-30)
     fig.savefig(os.path.join(DIR_FIG, "abruptness_ortographic_np") + ".pdf", dpi=300, format="pdf")
+    print("ola")
+    exit(0)
 
     ## year in which the maximum of abruptness occurs at each point
     idx = np.where(m)
