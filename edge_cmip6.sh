@@ -9,21 +9,21 @@
 
 conda activate cmip6-hypercc
 
-hyperccpath = "/nethome/terps020/edge/hypercc/bin"
-outpath = "/nethome/terps020/edge/output"
-datapath = "/nethome/terps020/cmip6/data"
-option_single = "--single"
-option_month = "--annual"
+hyperccpath="/nethome/terps020/edge/hypercc/bin"
+outpath="/nethome/terps020/edge/output"
+datapath="/nethome/terps020/cmip6/data"
+option_single="--single"
+option_month="--annual"
 
-sigmaS = "100"
-sigmaT = "10"
-thresh1 = pi-control-max
-thresh2 = pi-control-max*1/2
+sigmaS="100"
+sigmaT="10"
+thresh1=pi-control-max
+thresh2=pi-control-max*1/2
 
-model = "IPSL-CM6A-LR"
-scen = "1pctCO2"
-var = "tas"
-rea = "r1i1p1f1"
+model="IPSL-CM6A-LR"
+scen="1pctCO2"
+var="tas"
+rea="r1i1p1f1"
 
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
