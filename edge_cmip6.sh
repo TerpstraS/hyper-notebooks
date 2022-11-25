@@ -2,7 +2,7 @@
 #
 #SBATCH -J edge_cmip6
 #SBATCH -p short
-#SBATCH -t 0:10:00
+#SBATCH -t 0:30:00
 #SBATCH -n 1
 #SBATCH -o log_edge_cmip6.%j.o
 #SBATCH -e log_edge_cmip6.%j.e
