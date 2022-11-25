@@ -12,7 +12,7 @@ conda activate cmip6-hypercc
 hyperccpath="/nethome/terps020/edge/hypercc/bin"
 outpath="/nethome/terps020/edge/output"
 datapath="/nethome/terps020/cmip6/data"
-option_single="--single"
+#option_single="--single"
 option_month="--annual"
 
 sigmaS="100"
@@ -29,6 +29,6 @@ freq="Amon"
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
-${hyperccpath}/hypercc ${option_single} --data-folder ${datapath} --pi-control-folder ${datapath}  \
+${hyperccpath}/hypercc --data-folder ${datapath} --pi-control-folder ${datapath}  \
   report --variable ${var} --model ${model} --scenario ${scen} --realization ${rea} \
   --frequency ${freq} ${option_month} --sigma-t ${sigmaT} year --sigma-x ${sigmaS} km
