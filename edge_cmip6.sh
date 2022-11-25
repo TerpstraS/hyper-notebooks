@@ -30,5 +30,4 @@ rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
 ${hyperccpath}/hypercc ${option_single} --data-folder ${datapath} --pi-control-folder ${datapath}  \
   report --variable ${var} --model ${model} --scenario ${scen} --realization ${rea} \
-  ${option_month} --sigma-t ${sigmaT} year --sigma-x ${sigmaS} km \
-  --upper-threshold ${thresh1} --lower-threshold ${thresh2}
+  ${option_month} --sigma-t ${sigmaT} year --sigma-x ${sigmaS} km 
