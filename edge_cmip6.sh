@@ -24,10 +24,11 @@ model="IPSL-CM6A-LR"
 scen="1pctCO2"
 var="tas"
 rea="r1i1p1f1"
+freq="Amon"
 
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
 ${hyperccpath}/hypercc ${option_single} --data-folder ${datapath} --pi-control-folder ${datapath}  \
   report --variable ${var} --model ${model} --scenario ${scen} --realization ${rea} \
-  ${option_month} --sigma-t ${sigmaT} year --sigma-x ${sigmaS} km 
+  --frequency ${freq} ${option_month} --sigma-t ${sigmaT} year --sigma-x ${sigmaS} km
