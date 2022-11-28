@@ -20,11 +20,11 @@ sigmaT="10"
 thresh1=pi-control-max
 thresh2=pi-control-max*1/2
 
-model="IPSL-CM6A-LR"
+model="GFDL-ESM4"
 scen="1pctCO2"
-var="tas"
+var="siconc"
 rea="r1i1p1f1"
-freq="Amon"
+freq="SImon"
 
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
