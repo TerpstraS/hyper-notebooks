@@ -20,7 +20,7 @@ URL_NODES = [
 ]
 
 
-def download_wget(file_ctx, facets, dir=DIR_WGET, override=False, verbose=False):
+def download_wget(file_ctx, facets, dir, override=False, verbose=False):
     """Dowload single wget script for a given result
 
     Based on
@@ -97,7 +97,7 @@ def download_wget(file_ctx, facets, dir=DIR_WGET, override=False, verbose=False)
     return True
 
 
-def list_downloaded_wget(dir=DIR_WGET, path=False):
+def list_downloaded_wget(dir, path=False):
     """Return a list of all wget files in a given directory
 
     Args:
@@ -130,7 +130,7 @@ def login(OPENID, PASSWORD):
     return lm
 
 
-def print_downloaded_wget(dir=DIR_WGET, path=False):
+def print_downloaded_wget(dir, path=False):
     """Prints and returns a list of all wget files in a given directory
 
     Args:
@@ -140,7 +140,8 @@ def print_downloaded_wget(dir=DIR_WGET, path=False):
     Returns:
         files [np array]: list of all wget files in directory
     """
-    files = list_downloaded_wget(dir=dir, path=path)
+    print(f"Printing wget scripts in {dir}...")
+    files = list_downloaded_wget(dir, path=path)
     if files:
         print(f"Found the following wget scripts in {dir}:")
         for file in files:
@@ -151,7 +152,7 @@ def print_downloaded_wget(dir=DIR_WGET, path=False):
     return files
 
 
-def search_and_download_wget(ctx, facets, override=False, verbose=False):
+def search_and_download_wget(ctx, facets, dir, override=False, verbose=False):
     """Perform search of selected DatasetSearchContext ctx and download
     wget scripts for all search results
 
@@ -168,7 +169,7 @@ def search_and_download_wget(ctx, facets, override=False, verbose=False):
     n_results = 0
     for i, result in enumerate(results):
         file_ctx = result.file_context()
-        success = download_wget(file_ctx, facets, override=override, verbose=verbose)
+        success = download_wget(file_ctx, facets, dir, override=override, verbose=verbose)
         if not success:
             number_downloads_failed += 1
         n_results += 1
@@ -185,8 +186,16 @@ if __name__ == '__main__':
     # freq="SImon"
     # realm="ocean"
 
+    experiment_id = "1pctCO2"
     variable = "tas"
-    DIR_WGET = os.path.join("/nethome", "terps020", "cmip6", "wget", variable)
+    verbose = True
+
+    DIR_WGET_SCEN = os.path.join(
+        "/nethome", "terps020", "cmip6", "wget", variable, experiment_id
+    )
+    DIR_WGET_PICONTROL = os.path.join(
+        "/nethome", "terps020", "cmip6", "wget", variable, "piControl"
+    )
 
     # for security reasons, give openid and password when running this script.
     # do not store them here, because the github repository is public!
@@ -209,7 +218,7 @@ if __name__ == '__main__':
     facets = "source_id,experiment_id,variable"
     search = ({
         "project": "CMIP6",
-        "experiment_id": "1pctCO2",
+        "experiment_id": experiment_id,
         "variable": variable,
         "facets": facets,
         "replica": True,
@@ -218,16 +227,17 @@ if __name__ == '__main__':
     ctx = conn.new_context(
         **search
     )
-    search_and_download_wget(ctx, facets, verbose=True)
+    search_and_download_wget(ctx, facets, DIR_WGET_SCEN, verbose=verbose)
 
     search_piControl = search.copy()
     search_piControl["experiment_id"] = "piControl"
     ctx_piControl = conn.new_context(
         **search_piControl
     )
-    search_and_download_wget(ctx_piControl, facets, verbose=True)
+    search_and_download_wget(ctx_piControl, facets, DIR_WGET_PICONTROL, verbose=verbose)
 
-    print_downloaded_wget()
+    print_downloaded_wget(DIR_WGET_SCEN)
+    print_downloaded_wget(DIR_WGET_PICONTROL)
     #TODO: download per scenario, per model, lsm files
     # search_lsm = ({
     #     "project": "CMIP6",
