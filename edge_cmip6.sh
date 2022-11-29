@@ -42,7 +42,7 @@ rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 # loop through wget scripts in the directory of the given scenario
 directory="${wgetpath}/${var}/${scen}"
 for FILE in "${directory}"/*; do
-  if [[ -f ${FILE}]]; then
+  if [[ -f ${FILE} ]]; then
 
   echo ${FILE}
 
