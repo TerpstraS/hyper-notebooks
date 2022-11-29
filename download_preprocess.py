@@ -86,7 +86,7 @@ if __name__ == '__main__':
     experiment_id = sys.argv[1]
     variable = sys.argv[2]
     wget_var = sys.argv[3]  # this is including the whole path
-    print(wget_var)
+    wget_var = ".".join(wget_var.split("/")[-1]) # we want only file name, not path
 
     # directory where to save the downloaded files
     DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     wget_piControl = wget_var.split(".").copy()
     wget_piControl[2] = "piControl"
     wget_piControl = ".".join(wget_piControl)
+    print(wget_var, wget_piControl)
     if not os.path.isfile(os.path.join(DIR_WGET_PICONTROL, wget_piControl)):
         raise RuntimeError("No associated piControl wget script to {}".format(wget_var))
 
