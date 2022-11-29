@@ -12,7 +12,7 @@
 
 hyperccpath="/nethome/terps020/edge/hypercc/bin"
 outpath="/nethome/terps020/edge/output"
-datapath="/nethome/terps020/cmip6/data"
+datatemppath="/nethome/terps020/cmip6/datatemp"
 wgetpath="/nethome/terps020/cmip6/wget"
 lsmpath="/nethome/terps020/cmip6/lsmdata"
 
@@ -40,8 +40,7 @@ option_extension=""
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
 # loop through wget scripts in the directory of the given scenario
-cd "${wgetpath}/${var}/${scen}"
-for FILE in *; do
+for FILE in "${wgetpath}/${var}/${scen}/*"; do
 
   # call python script to:
   # 1. check if it has an associated piControl. If not continue with next file
@@ -50,6 +49,7 @@ for FILE in *; do
   # 4. preprocess data
   # Careful! Uses different conda environment as hypercc
   #WARNING: set correct conda environment
+  #NOTE: above implemented except step 2. Not tested, but should work.
   conda activate cmip6-xmip
   srun python3 download_preprocess.py ${scen} ${var} ${FILE}
   conda deactivate
@@ -63,20 +63,26 @@ for FILE in *; do
 
   # check if lsmfile exists and if realm is not atmosphere (no mask needed for atmosphere)
   if [[ -f ${lsmfile} && ! ${realm} == "atmos" ]]; then
-    file=${datapath}.CMIP.${model}.${scen}.${rea}.${freq}.${var}.gr.nc
-    cdo -s ifthen ${lsmfile} ${file} ${file}_masked
+    # for the scenario file
+    file_var=${datatemppath}.CMIP.${model}.${scen}.${rea}.${freq}.${var}.gr.nc
+    cdo -s ifthen ${lsmfile} ${file_var} ${file_var}_masked
+
+    # for the piControl file
+    file_piControl=${datatemppath}.CMIP.${model}.piControl.${rea}.${freq}.${var}.gr.nc
+    cdo -s ifthen ${lsmfile} ${file_piControl} ${file_piControl}_masked
     option_extension="--extension gr.nc_masked"
   fi
 
   # run the hypercc program for edge detection
   conda activate cmip6-hypercc
-  ${hyperccpath}/hypercc --data-folder ${datapath} --pi-control-folder ${datapath}  \
+  ${hyperccpath}/hypercc --data-folder ${datatemppath} --pi-control-folder ${datatemppath}  \
     report --variable ${var} --model ${model} --scenario ${scen} --realization ${rea} \
     ${option_extension} --frequency ${freq} ${option_month} --sigma-t ${sigmaT} year \
     --sigma-x ${sigmaS} km
   conda deactivate
 
   #TODO remove files from datapath directory
+  rm -r
 
 done
 

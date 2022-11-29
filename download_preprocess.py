@@ -65,17 +65,32 @@ def preprocessing_wrapper(ds):
     return ds
 
 
+def find_filename(dir, experiment_id):
+    """Find file name for given experiment_id in dir (assumes only one file for each
+    scenario/experiment_id) --> works only in connection with edge_cmip6.sh workflow.
+    """
+    for file in os.listdir(os.fsencode(dir)):
+        fname_in_dir = os.fsdecode(file)
+        if experiment_id in fname_in_dir:
+            return fname_in_dir
+    else:
+        raise FileNotFoundError(
+            f"Could not found file for experiment_id: {experiment_id}..."
+        )
+
+
 if __name__ == '__main__':
 
     # get essential info from bash script as input arguments
     experiment_id = sys.argv[1]
     variable = sys.argv[2]
-    wget_var = sys.argv[3]
+    wget_var = sys.argv[3]  # this is including the whole path
+    wget_var = wget_var.split("/")[-1] # we want only file name, not the full path
 
     # directory where to save the downloaded files
-    DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "tempdata")
+    DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
     if not os.path.isdir(DIR_DATA):
-        os.makedirs(DIR_DATA)
+        os.makedirs(DIR_DATATEMP)
     DIR_WGET_SCEN = os.path.join(
         "/nethome", "terps020", "cmip6", "wget", variable, experiment_id
     )
@@ -108,21 +123,25 @@ if __name__ == '__main__':
 
     # open files and preprocess them
     #TODO: ds_var_fname --> how to obtain this?
+    ds_var_fname = find_filename(DIR_DATATEMP, experiment_id)
     ds_var_path = os.path.join(DIR_DATATEMP, ds_var_fname)
     ds_var = xr.open_dataset(ds_var_path)
     ds_var = preprocessing_wrapper(ds_var)
 
     # save and remove from memory to speed-up and save space
-    ## TODO: make sure to save to correct file name
-    ds_var_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
-    ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname))
+    ## TODO: make sure to save to correct file name (should be correct now)
+    ds_var_fname_save = ".".join(wget_var.split(".")[:-1]) + ".nc"
+    ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname_save))
     del ds_var
 
+    ds_piControl_fname = find_filename(DIR_DATATEMP, "piControl")
     ds_piControl_path = os.path.join(DIR_DATATEMP, ds_piControl_fname)
     ds_piControl = xr.open_dataset(ds_piControl_path)
+    ds_piControl = preprocessing_wrapper(ds_piControl)
 
     # save and remove from memory to speed-up and save space
-    ## TODO: make sure to save to correct file name
-    ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
-    ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname))
+    ## TODO: make sure to save to correct file name (should be correct now)
+    # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
+    ds_piControl_fname_save = ".".join(wget_piControl.split(".")[:-1]) + ".nc"
+    ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname_save))
     del ds_piControl
