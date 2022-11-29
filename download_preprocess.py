@@ -145,9 +145,9 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
     # subprocess.check_output("bash {} -H -d {} {}".format(wget_var_path, OPENID, PASSWORD), cwd=DIR_DATATEMP)
     # subprocess.check_output("{}".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    process = subprocess.Popen([wget_var_path, "-H"], cwd=DIR_DATATEMP)
+    process = subprocess.Popen([wget_var_path, "-H -d -i"], cwd=DIR_DATATEMP)
     process.wait()
-    process = subprocess.Popen([wget_piControl_path, "-H"], cwd=DIR_DATATEMP)
+    process = subprocess.Popen([wget_piControl_path, "-H -d -i"], cwd=DIR_DATATEMP)
     process.wait()
     # can speed up above by waiting only once instead of twice
 
