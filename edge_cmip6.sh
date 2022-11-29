@@ -48,9 +48,9 @@ for FILE in "${wgetpath}/${var}/${scen}/*"; do
   # 3. download both scenario and picontrol files
   # 4. preprocess data
   # Careful! Uses different conda environment as hypercc
-  #WARNING: set correct conda environment
+  #WARNING: set correct conda environment (should be correct now)
   #NOTE: above implemented except step 2. Not tested, but should work.
-  conda activate cmip6-xmip
+  conda activate cmip6-download
   srun python3 download_preprocess.py ${scen} ${var} ${FILE}
   conda deactivate
 
@@ -82,7 +82,11 @@ for FILE in "${wgetpath}/${var}/${scen}/*"; do
   conda deactivate
 
   #TODO remove files from datapath directory
-  rm -r
+  rm -r ${datatemppath}
+
+  #WARNING: remove exit after testing
+  echo "Program exit after one iteration of loop for debugging purposes..."
+  exit
 
 done
 
