@@ -169,12 +169,12 @@ def search_and_download_wget(ctx, override=False):
 
 if __name__ == '__main__':
 
-    model="GFDL-ESM4"
-    scen="1pctCO2"
-    var="siconc"
-    rea="r1i1p1f1"
-    freq="SImon"
-    realm="ocean"
+    # model="GFDL-ESM4"
+    # scen="1pctCO2"
+    # var="siconc"
+    # rea="r1i1p1f1"
+    # freq="SImon"
+    # realm="ocean"
 
     # for security reasons, give openid and password when running this script.
     # do not store them here, because the github repository is public!
@@ -197,7 +197,7 @@ if __name__ == '__main__':
         "project": "CMIP6",
         "experiment_id": "1pctCO2",
         "variable": "tas",
-        "frequency": "Amon,SImon,0mon,AERmon,AERmonZ,CFmon,Emon,EmonZ,ImonAnt,ImonGre,"
+        "frequency": "Amon,SImon,0mon,AERmon,AERmonZ,CFmon,Emon,EmonZ,ImonAnt,ImonGre",
         "facets": "source_id,experiment_id,variable",
         "replica": True,
         "latest": True
