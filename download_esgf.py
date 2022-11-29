@@ -14,7 +14,6 @@ import sys
 from pyesgf.logon import LogonManager
 from pyesgf.search import SearchConnection
 
-DIR_WGET = os.path.join("/nethome", "terps020", "cmip6", "wget")
 URL_NODES = [
     "https://esgf-data.dkrz.de/esg-search",
     "https://esgf-node.llnl.gov/esg-search"
@@ -186,6 +185,9 @@ if __name__ == '__main__':
     # freq="SImon"
     # realm="ocean"
 
+    variable = "tas"
+    DIR_WGET = os.path.join("/nethome", "terps020", "cmip6", "wget", variable)
+
     # for security reasons, give openid and password when running this script.
     # do not store them here, because the github repository is public!
     OPENID = sys.argv[1]
@@ -208,7 +210,7 @@ if __name__ == '__main__':
     search = ({
         "project": "CMIP6",
         "experiment_id": "1pctCO2",
-        "variable": "tas",
+        "variable": variable,
         "facets": facets,
         "replica": True,
         "latest": True
