@@ -21,7 +21,7 @@ URL_NODES = [
 ]
 
 
-def download_wget(file_ctx, dir=DIR_WGET, override=False, verbose=False):
+def download_wget(file_ctx, facets, dir=DIR_WGET, override=False, verbose=False):
     """Dowload single wget script for a given result
 
     Based on
@@ -84,7 +84,7 @@ def download_wget(file_ctx, dir=DIR_WGET, override=False, verbose=False):
             print(f"{fname} already downloaded, skipping...")
         return True
 
-    wget_script_content = file_ctx.get_download_script()
+    wget_script_content = file_ctx.get_download_script(facets=facets)
 
     # create file to save the wget script as .sh executable
     with open(script_path, "w") as writer:
@@ -168,8 +168,8 @@ def search_and_download_wget(ctx, facets, override=False, verbose=False):
     number_downloads_failed = 0
     n_results = 0
     for i, result in enumerate(results):
-        file_ctx = result.file_context(facets=facets)
-        success = download_wget(file_ctx, override=override, verbose=verbose)
+        file_ctx = result.file_context()
+        success = download_wget(file_ctx, facets, override=override, verbose=verbose)
         if not success:
             number_downloads_failed += 1
         n_results += 1
