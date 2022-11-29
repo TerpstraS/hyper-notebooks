@@ -10,6 +10,7 @@ Download climate data from wget scripts and preprocess using xmip
 # ---------------------------------------------------------------------------
 import os
 import subprocess
+import sys
 
 import xarray as xr
 
