@@ -1,10 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+# Created By: Sjoerd Terpstra
+# Created Date: 29/11/2022
+# ---------------------------------------------------------------------------
+""" download_esgf.py
+Download climate data from wget scripts and preprocess using xmip
+"""
+# ---------------------------------------------------------------------------
 import os
-from timeit import default_timer as timer
+import subprocess
 
-import dask
-import intake
 import xarray as xr
-xr.set_options(display_style='html')
 
 import xmip.preprocessing as xmip_pre
 from xmip.postprocessing import match_metrics
@@ -13,12 +20,6 @@ from xmip.postprocessing import match_metrics
 # import warnings
 # from shapely.errors import ShapelyDeprecationWarning
 # warnings.filterwarnings("ignore", ccmioategory=ShapelyDeprecationWarning)
-
-# directory where to save the downloaded files
-DIR_DATA = os.path.join("/nethome", "terps020", "cmip6", "data")
-
-# URL of cmip6 catalogue
-CAT_URL = "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
 
 
 def preprocessing_wrapper(ds):
@@ -64,83 +65,64 @@ def preprocessing_wrapper(ds):
     return ds
 
 
-def build_query(scen, var, realm, model=None, freq="Amon", member_id=None):
-    query_var = dict(
-        experiment_id=scen, variable_id=var, source_id=model, member_id=member_id,
-        table_id=freq
-    )
-
-    query_piControl = dict(
-        experiment_id=scen, variable_id="piControl", source_id=model, member_id=member_id,
-        table_id=freq
-    )
-
-    # if realm is not atmosphere, we need to mask the data
-    if realm != "atmos":
-        query_mask = dict(
-            experiment_id=scen, variable_id="sftlf", source_id=model
-        )
-        return query_var, query_piControl, query_mask
-    else:
-        return query_var, query_piControl, None
-
-
-def retrieve_data_sets(search_var, search_piControl, search_mask=None, kwargs=None):
-    if kwargs is None:
-        kwargs = {
-            "xarray_open_kwargs":{
-                "consolidated": True,
-                "decode_times": True,
-                "use_cftime": True
-            },
-            "aggregate": False,
-            "progressbar": True,
-            "skip_on_error": False,
-            "preprocess": preprocessing_wrapper
-        }
-
-    with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-        dset_var = search_var.to_dataset_dict(**kwargs)
-    with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-        dset_piControl = search_piControl.to_dataset_dict(**kwargs)
-    if search_mask is not None:
-        with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-            dset_mask = search_mask.to_dataset_dict(**kwargs)
-        return dset_var, dset_piControl, dset_mask
-    else:
-        return dset_var, dset_piControl, None
-
-
-def search_query(cat, query_var, query_piControl, query_mask=None):
-    search_var = cat.search(**query_var)
-    if search_var.df.size == 0:
-        print(f"No result found for search:\{query_var}")
-        raise FileNotFoundError("Search result not found.")
-
-    search_piControl = cat.search(**query_piControl)
-    if search_piControl.df.size == 0:
-        print(f"No result found for search:\{query_piControl}")
-        raise FileNotFoundError("Search result not found.")
-
-    if query_mask is not None:
-        search_mask = cat.search(**query_mask)
-        if search_mask.df.size == 0:
-            print(f"No result found for search:\{query_mask}")
-            raise FileNotFoundError("Search result not found.")
-        return search_var, search_piControl, search_mask
-    else:
-        return search_var, search_piControl, None
-
-
 if __name__ == '__main__':
 
-    scen = "1pctCO2"
-    var = "tas"
-    realm = "atmos"
-    model = None
+    # get essential info from bash script as input arguments
+    experiment_id = sys.argv[1]
+    variable = sys.argv[2]
+    wget_var = sys.argv[3]
 
-    cat = intake.open_esm_datastore(cat_url)
+    # directory where to save the downloaded files
+    DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "tempdata")
+    if not os.path.isdir(DIR_DATA):
+        os.makedirs(DIR_DATA)
+    DIR_WGET_SCEN = os.path.join(
+        "/nethome", "terps020", "cmip6", "wget", variable, experiment_id
+    )
+    DIR_WGET_PICONTROL = os.path.join(
+        "/nethome", "terps020", "cmip6", "wget", variable, "piControl"
+    )
 
-    query = build_query(scen, var, realm, model=model)
-    search_result = search_query(cat, *query)
-    dset = retrieve_data_sets(*search_result)
+    # check if piControl file exists
+    wget_piControl = wget_var.split(".").copy()
+    wget_piControl[2] = "piControl"
+    wget_piControl = ".".join(wget_piControl)
+    if not os.path.isfile(os.path.join(DIR_WGET_PICONTROL, wget_piControl)):
+        raise RuntimeError("No associated piControl wget script to {}".format(wget_var))
+
+    ## WARNING: temporary only use files that are already in gr format
+    ## TODO: remapping files (either here or by using cdo in bash)
+    print("# WARNING: temporary only using files that are already in gr format")
+    if not wget_var.endswith("gr.sh"):
+        raise RuntimeError(
+            "# WARNING: temporary only using files that are already in gr format"
+        )
+
+    # make sure files are executable
+    wget_var_path = os.path.join(DIR_WGET_SCEN, wget_var)
+    wget_piControl_path = os.path.join(DIR_WGET_PICONTROL, wget_piControl)
+    os.chmod(wget_var_path, 0o750)
+    os.chmod(wget_piControl_path, 0o750)
+    subprocess.check_output("{}".format(wget_var_path), cwd=DIR_DATATEMP)
+    subprocess.check_output("{}".format(wget_piControl_path), cwd=DIR_DATATEMP)
+
+    # open files and preprocess them
+    #TODO: ds_var_fname --> how to obtain this?
+    ds_var_path = os.path.join(DIR_DATATEMP, ds_var_fname)
+    ds_var = xr.open_dataset(ds_var_path)
+    ds_var = preprocessing_wrapper(ds_var)
+
+    # save and remove from memory to speed-up and save space
+    ## TODO: make sure to save to correct file name
+    ds_var_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
+    ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname))
+    del ds_var
+
+    ds_piControl_path = os.path.join(DIR_DATATEMP, ds_piControl_fname)
+    ds_piControl = xr.open_dataset(ds_piControl_path)
+
+    # save and remove from memory to speed-up and save space
+    ## TODO: make sure to save to correct file name
+    ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
+    ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname))
+    del ds_piControl
