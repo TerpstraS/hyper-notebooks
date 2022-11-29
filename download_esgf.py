@@ -196,6 +196,10 @@ if __name__ == '__main__':
     DIR_WGET_PICONTROL = os.path.join(
         "/nethome", "terps020", "cmip6", "wget", variable, "piControl"
     )
+    if not os.path.isdir(DIR_WGET_SCEN):
+        os.makedirs(DIR_WGET_SCEN)
+    if not os.path.isdir(DIR_WGET_PICONTROL):
+        os.makedirs(DIR_WGET_PICONTROL)
 
     # for security reasons, give openid and password when running this script.
     # do not store them here, because the github repository is public!
