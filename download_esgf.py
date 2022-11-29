@@ -162,7 +162,7 @@ def search_and_download_wget(ctx, facets, override=False, verbose=False):
         override [boolean]: whether already downloaded files will be dowloaded again
     """
     # perform search based on criteria
-    results = ctx.search()
+    results = ctx.search(facets=facets)
 
     # get wget script for all results
     number_downloads_failed = 0
