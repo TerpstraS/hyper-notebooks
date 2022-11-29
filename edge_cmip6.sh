@@ -7,6 +7,9 @@
 #SBATCH -o log_edge_cmip6.%j.o
 #SBATCH -e log_edge_cmip6.%j.e
 
+# Created by: Sjoerd Terpstra
+# Date: 11/2022
+
 conda activate cmip6-hypercc
 
 hyperccpath="/nethome/terps020/edge/hypercc/bin"
@@ -14,9 +17,14 @@ outpath="/nethome/terps020/edge/output"
 datapath="/nethome/terps020/cmip6/data"
 lsmpath="/nethome/terps020/cmip6/lsmdata"
 
+# if uncommented, run code on single core instead of parallel
+# currently, code gives error if trying to run on single node
 #option_single="--single"
+
+# choose between monhtly or annual averages
 option_month="--annual"
 
+#TODO set these options to the right values
 sigmaS="100"
 sigmaT="10"
 thresh1=pi-control-max
