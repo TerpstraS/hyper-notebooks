@@ -86,7 +86,7 @@ if __name__ == '__main__':
     experiment_id = sys.argv[1]
     variable = sys.argv[2]
     wget_var = sys.argv[3]  # this is including the whole path
-    wget_var = ".".join(wget_var.split("/")[-1]) # we want only file name, not path
+    wget_var = wget_var.split("/")[-1] # we want only file name, not path
 
     # directory where to save the downloaded files
     DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
