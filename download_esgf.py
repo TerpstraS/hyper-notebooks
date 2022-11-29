@@ -197,13 +197,33 @@ if __name__ == '__main__':
         "project": "CMIP6",
         "experiment_id": "1pctCO2",
         "variable": "tas",
-        "frequency": "Amon, SImon"
+        "frequency": "Amon,SImon,0mon,AERmon,AERmonZ,CFmon,Emon,EmonZ,ImonAnt,ImonGre,"
         "facets": "source_id,experiment_id,variable",
         "replica": True,
         "latest": True
     })
     ctx = conn.new_context(
-        **search_dict
+        **search
     )
-
     search_and_download_wget(ctx)
+
+    search_piControl = search.copy()
+    search_piControl["experiment_id"] = "piControl"
+    ctx_piControl = conn.new_context(
+        **search_piControl
+    )
+    search_and_download_wget(ctx_piControl)
+
+    print(download_wget)
+    #TODO: download per scenario, per model, lsm files
+    # search_lsm = ({
+    #     "project": "CMIP6",
+    #     "realm": "land"
+    #     "facets": "source_id,experiment_id,variable",
+    #     "replica": True,
+    #     "latest": True
+    # })
+    # ctx_lsm = conn.new_context(
+    #     **search_lsm
+    # )
+    # search_and_download_wget(ctx_lsm)
