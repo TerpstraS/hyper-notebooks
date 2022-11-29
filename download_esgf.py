@@ -56,16 +56,16 @@ def download_wget(file_ctx, facets, dir, override=False, verbose=False):
     # check if wget script for this exact simulation already exists for another grid
     # grid_label = list(file_ctx._SearchContext__facet_counts["grid_label"].keys())[0]
     for file in os.listdir(os.fsencode(dir)):
-        fname_dir = os.fsdecode(file)
-        # remove .sh extension and grid_label
-        if fname_dir.split(".")[:-2] == fname:
+        fname_in_dir = os.fsdecode(file)
+        # remove .sh extension and compare grid_label
+        if ".".join(fname_in_dir.split(".")[:-2]) == ".".join(fname.split(".")[:-1]):
             # check which one has better grid
-            if fname_dir.split(".")[-2] == "gr":
+            if fname_in_dir.split(".")[-2] == "gr":
                 return True
             elif fname.split(".")[-1] == "gr":
                 break
             else:
-                if fname_dir.split(".")[-2] == "gn":
+                if fname_in_dir.split(".")[-2] == "gn":
                     return True
                 else:
                     break
