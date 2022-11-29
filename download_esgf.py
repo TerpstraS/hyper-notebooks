@@ -179,6 +179,7 @@ if __name__ == '__main__':
     # for security reasons, give openid and password when running this script.
     # do not store them here, because the github repository is public!
     OPENID = sys.argv[1]
+    print(OPENID)
     PASSWORD = sys.argv[2]
     login(OPENID, PASSWORD)
 
