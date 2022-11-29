@@ -145,8 +145,8 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
     # subprocess.check_output("bash {} -H -d {} {}".format(wget_var_path, OPENID, PASSWORD), cwd=DIR_DATATEMP)
     # subprocess.check_output("{}".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    subprocess.Popen([wget_var_path])
-    subprocess.Popen([wget_piControl_path])
+    subprocess.Popen([wget_var_path, "-H"], cwd=DIR_DATATEMP)
+    subprocess.Popen([wget_piControl_path, "-H"], cwd=DIR_DATATEMP)
 
     # open files and preprocess them
     #TODO: ds_var_fname --> how to obtain this?
