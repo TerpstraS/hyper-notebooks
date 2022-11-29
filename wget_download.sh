@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #
-#SBATCH -J analysis_cmip6
+#SBATCH -J wget_esgf
 #SBATCH -p short
 #SBATCH -t 1:00:00
 #SBATCH -n 1
