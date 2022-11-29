@@ -89,7 +89,7 @@ for FILE in "${directory}"/*; do
   conda deactivate
 
   #TODO remove files from datapath directory
-  rm -r ${datatemppath}
+  # rm -r ${datatemppath}
 
   #WARNING: remove exit after testing
   echo "Program exit after one iteration of loop for debugging purposes..."

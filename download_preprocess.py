@@ -88,7 +88,8 @@ def find_filename(dir, experiment_id):
     for file in os.listdir(os.fsencode(dir)):
         fname_in_dir = os.fsdecode(file)
         if experiment_id in fname_in_dir:
-            return fname_in_dir
+            if fname_in_dir.endswith(".sh"):
+                return fname_in_dir
     else:
         raise FileNotFoundError(
             f"Could not found file for experiment_id: {experiment_id}..."
