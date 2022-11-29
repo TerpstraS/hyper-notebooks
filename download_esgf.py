@@ -44,7 +44,7 @@ def download_wget(file_ctx, dir=DIR_WGET, override=False, verbose=False):
     fname = [fname[i] for i in ind]
     fname = ".".join(fname)
 
-    freq = fname[4]
+    freq = fname.split(".")[4]
     freq_list = [
         "Amon", "SImon", "0mon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ",
         "ImonAnt", "ImonGre"
@@ -212,7 +212,6 @@ if __name__ == '__main__':
         "replica": True,
         "latest": True
     })
-    print(**search)
     ctx = conn.new_context(
         **search
     )
