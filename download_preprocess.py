@@ -103,8 +103,8 @@ if __name__ == '__main__':
 
     # connection is needed to be able to execute the wget scripts
     ## TODO: crash program if this is unsuccessful
-    login(OPENID, PASSWORD)
-
+    lm = login(OPENID, PASSWORD)
+    print(lm.is_logged_on())
     experiment_id = sys.argv[3]
     variable = sys.argv[4]
     wget_var = sys.argv[5]  # this is including the whole path
