@@ -40,7 +40,11 @@ option_extension=""
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
 # loop through wget scripts in the directory of the given scenario
-for FILE in "${wgetpath}/${var}/${scen}/*"; do
+directory="${wgetpath}/${var}/${scen}"
+for FILE in "${directory}"/*; do
+  if [[ -f ${FILE}]]; then
+
+  echo ${FILE}
 
   # call python script to:
   # 1. check if it has an associated piControl. If not continue with next file
@@ -87,7 +91,7 @@ for FILE in "${wgetpath}/${var}/${scen}/*"; do
   #WARNING: remove exit after testing
   echo "Program exit after one iteration of loop for debugging purposes..."
   exit
-
+  fi
 done
 
 exit
