@@ -152,7 +152,7 @@ def print_downloaded_wget(dir=DIR_WGET, path=False):
     return files
 
 
-def search_and_download_wget(ctx, override=False, verbose=False):
+def search_and_download_wget(ctx, facets, override=False, verbose=False):
     """Perform search of selected DatasetSearchContext ctx and download
     wget scripts for all search results
 
@@ -168,7 +168,7 @@ def search_and_download_wget(ctx, override=False, verbose=False):
     number_downloads_failed = 0
     n_results = 0
     for i, result in enumerate(results):
-        file_ctx = result.file_context()
+        file_ctx = result.file_context(facets=facets)
         success = download_wget(file_ctx, override=override, verbose=verbose)
         if not success:
             number_downloads_failed += 1
@@ -204,25 +204,26 @@ if __name__ == '__main__':
         print("Exiting...")
         exit(-2)
 
+    facets = "source_id,experiment_id,variable"
     search = ({
         "project": "CMIP6",
         "experiment_id": "1pctCO2",
         "variable": "tas",
-        "facets": "source_id,experiment_id,variable",
+        "facets": facets,
         "replica": True,
         "latest": True
     })
     ctx = conn.new_context(
         **search
     )
-    search_and_download_wget(ctx, verbose=True)
+    search_and_download_wget(ctx, facets, verbose=True)
 
     search_piControl = search.copy()
     search_piControl["experiment_id"] = "piControl"
     ctx_piControl = conn.new_context(
         **search_piControl
     )
-    search_and_download_wget(ctx_piControl, verbose=True)
+    search_and_download_wget(ctx_piControl, facets, verbose=True)
 
     print_downloaded_wget()
     #TODO: download per scenario, per model, lsm files
