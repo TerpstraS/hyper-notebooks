@@ -47,7 +47,7 @@ def download_wget(file_ctx, dir=DIR_WGET, override=False, verbose=False):
     freq = fname[4]
     freq_list = [
         "Amon", "SImon", "0mon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ",
-        "ImonAnt", "ImonGre""
+        "ImonAnt", "ImonGre"
     ]
     if freq not in freq_list:
         if verbose:
