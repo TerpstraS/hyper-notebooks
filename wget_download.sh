@@ -11,4 +11,4 @@ OPENID="https://esgf-node.llnl.gov/esgf-idp/openid/TerpstraS"
 PASSWORD="" # fill in password. Do not save to github!
 
 conda activate cmip6-esgf
-srun python3 download_esgf.py OPENID PASSWORD
+srun python3 download_esgf.py ${OPENID} ${PASSWORD}
