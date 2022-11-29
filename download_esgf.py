@@ -44,6 +44,16 @@ def download_wget(file_ctx, dir=DIR_WGET, override=False, verbose=False):
     fname = [fname[i] for i in ind]
     fname = ".".join(fname)
 
+    freq = fname[4]
+    freq_list = [
+        "Amon", "SImon", "0mon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ",
+        "ImonAnt", "ImonGre""
+    ]
+    if freq not in freq_list:
+        if verbose:
+            print(f"{fname} has incorrect frequency")
+        return True
+
     # check if wget script for this exact simulation already exists for another grid
     # grid_label = list(file_ctx._SearchContext__facet_counts["grid_label"].keys())[0]
     for file in os.listdir(os.fsencode(dir)):
@@ -142,7 +152,7 @@ def print_downloaded_wget(dir=DIR_WGET, path=False):
     return files
 
 
-def search_and_download_wget(ctx, override=False):
+def search_and_download_wget(ctx, override=False, verbose=False):
     """Perform search of selected DatasetSearchContext ctx and download
     wget scripts for all search results
 
@@ -159,7 +169,7 @@ def search_and_download_wget(ctx, override=False):
     n_results = 0
     for i, result in enumerate(results):
         file_ctx = result.file_context()
-        success = download_wget(file_ctx, override=override)
+        success = download_wget(file_ctx, override=override, verbose=verbose)
         if not success:
             number_downloads_failed += 1
         n_results += 1
@@ -198,24 +208,24 @@ if __name__ == '__main__':
         "project": "CMIP6",
         "experiment_id": "1pctCO2",
         "variable": "tas",
-        "frequency": "Amon,SImon,0mon,AERmon,AERmonZ,CFmon,Emon,EmonZ,ImonAnt,ImonGre",
         "facets": "source_id,experiment_id,variable",
         "replica": True,
         "latest": True
     })
+    print(**search)
     ctx = conn.new_context(
         **search
     )
-    search_and_download_wget(ctx)
+    search_and_download_wget(ctx, verbose=True)
 
     search_piControl = search.copy()
     search_piControl["experiment_id"] = "piControl"
     ctx_piControl = conn.new_context(
         **search_piControl
     )
-    search_and_download_wget(ctx_piControl)
+    search_and_download_wget(ctx_piControl, verbose=True)
 
-    print(download_wget)
+    print_downloaded_wget()
     #TODO: download per scenario, per model, lsm files
     # search_lsm = ({
     #     "project": "CMIP6",
