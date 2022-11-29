@@ -11,7 +11,7 @@
 # Date: 11/2022
 
 OPENID="https://esgf-node.llnl.gov/esgf-idp/openid/TerpstraS"
-PASSWORD="" # fill in password. Do not save to github!
+PASSWORD=$1 # get password via command line. Do not save to github!
 
 hyperccpath="/nethome/terps020/edge/hypercc/bin"
 outpath="/nethome/terps020/edge/output"
