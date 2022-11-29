@@ -10,6 +10,9 @@
 # Created by: Sjoerd Terpstra
 # Date: 11/2022
 
+OPENID="https://esgf-node.llnl.gov/esgf-idp/openid/TerpstraS"
+PASSWORD="" # fill in password. Do not save to github!
+
 hyperccpath="/nethome/terps020/edge/hypercc/bin"
 outpath="/nethome/terps020/edge/output"
 datatemppath="/nethome/terps020/cmip6/datatemp"

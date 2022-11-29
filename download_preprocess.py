@@ -14,6 +14,8 @@ import sys
 
 import xarray as xr
 
+from pyesgf.logon import LogonManager
+
 import xmip.preprocessing as xmip_pre
 from xmip.postprocessing import match_metrics
 
@@ -21,6 +23,19 @@ from xmip.postprocessing import match_metrics
 # import warnings
 # from shapely.errors import ShapelyDeprecationWarning
 # warnings.filterwarnings("ignore", ccmioategory=ShapelyDeprecationWarning)
+
+
+def login(OPENID, PASSWORD):
+    lm = LogonManager()
+    if not lm.is_logged_on():
+        lm.logon_with_openid(
+            OPENID, password=PASSWORD, bootstrap=True
+        )
+
+    # check if it worked
+    if not lm.is_logged_on():
+        raise RuntimeError("Can't login to ESGF database. Exiting...")
+    return lm
 
 
 def preprocessing_wrapper(ds):
@@ -83,9 +98,16 @@ def find_filename(dir, experiment_id):
 if __name__ == '__main__':
 
     # get essential info from bash script as input arguments
-    experiment_id = sys.argv[1]
-    variable = sys.argv[2]
-    wget_var = sys.argv[3]  # this is including the whole path
+    OPENID = sys.argv[1]
+    PASSWORD = sys.argv[2]
+
+    # connection is needed to be able to execute the wget scripts
+    ## TODO: crash program if this is unsuccessful
+    login(OPENID, PASSWORD)
+
+    experiment_id = sys.argv[3]
+    variable = sys.argv[4]
+    wget_var = sys.argv[5]  # this is including the whole path
     wget_var = wget_var.split("/")[-1] # we want only file name, not path
 
     # directory where to save the downloaded files
