@@ -81,8 +81,8 @@ if __name__ == '__main__':
 
     # directory where to save the downloaded files
     DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
-    if not os.path.isdir(DIR_DATATEMP_WGET):
-        os.makedirs(DIR_DATATEMP_WGET)
+    if not os.path.isdir(DIR_DATATEMP):
+        os.makedirs(DIR_DATATEMP)
     DIR_WGET_SCEN = os.path.join(
         "/nethome", "terps020", "cmip6", "wget", variable, experiment_id
     )
