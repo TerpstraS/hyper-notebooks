@@ -103,7 +103,7 @@ if __name__ == '__main__':
     PASSWORD = sys.argv[2]
 
     # connection is needed to be able to execute the wget scripts
-    lm = login(OPENID, PASSWORD)
+    # lm = login(OPENID, PASSWORD)
 
     experiment_id = sys.argv[3]
     variable = sys.argv[4]
