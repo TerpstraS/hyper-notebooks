@@ -66,9 +66,10 @@ for FILE in "${directory}"/*; do
   # 2. run wget from bash script
   # 3. run python to preprocess downloaded files
   conda activate cmip6-download
-  srun python3 prepare_wget.py ${scen} ${var} ${FILE}
+  #srun python3 prepare_wget.py ${scen} ${var} ${FILE}
   WGETFILES='${datatemppath}/*'
   echo WGETFILES
+  exit
   for WGETFILE in WGETFILES; do
     if [[ -f ${WGETFILE} ]]; then
     bash ${WGETFILE} -s
