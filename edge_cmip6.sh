@@ -67,10 +67,14 @@ for FILE in "${directory}"/*; do
   # 3. run python to preprocess downloaded files
   conda activate cmip6-download
   srun python3 prepare_wget.py ${scen} ${var} ${FILE}
-  for FILE in "${datatemppath}/wget"/*; do
-    bash ${FILE} -s
+  WGETFILES='${datatemppath}/*'
+  echo WGETFILES
+  for WGETFILE in WGETFILES; do
+    if [[ -f ${WGETFILE} ]]; then
+    bash ${WGETFILE} -s
+    fi
   done
-  srun python3 preprocess.py
+  srun python3 preprocess.py ${scen} ${var}
   conda deactivate
 
   # apply mask to data

@@ -5,7 +5,8 @@
 # Created Date: 30/11/2022
 # ---------------------------------------------------------------------------
 """ download_esgf.py
-Select wget scripts and put in right directory
+Select wget scripts and put in right directory.
+Main purpose is to find piControl associated with given scenario
 """
 # ---------------------------------------------------------------------------
 import os
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     wget_var = wget_var.split("/")[-1] # we want only file name, not path
 
     # directory where to save the downloaded files
-    DIR_DATATEMP_WGET = os.path.join("/nethome", "terps020", "cmip6", "datatemp", "wget")
+    DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
     if not os.path.isdir(DIR_DATATEMP_WGET):
         os.makedirs(DIR_DATATEMP_WGET)
     DIR_WGET_SCEN = os.path.join(
@@ -112,5 +113,5 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
 
     # copy wget script to datatemp directory so we can easily use them in the bash script
-    shutil.copy(wget_var_path, os.path.join(DIR_DATATEMP_WGET, wget_var))
-    shutil.copy(wget_piControl_path, os.path.join(DIR_DATATEMP_WGET, wget_piControl))
+    shutil.copy(wget_var_path, os.path.join(DIR_DATATEMP, wget_var))
+    shutil.copy(wget_piControl_path, os.path.join(DIR_DATATEMP, wget_piControl))
