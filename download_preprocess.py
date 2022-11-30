@@ -144,9 +144,9 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
     # subprocess.check_output("bash {} -s".format(wget_var_path), cwd=DIR_DATATEMP)
     # subprocess.check_output("bash {} -s".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    process = subprocess.run(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    process = subprocess.call(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
     # process.wait()
-    process = subprocess.run(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    process = subprocess.call(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
     # process.wait()
     # can speed up above by waiting only once instead of twice
 
