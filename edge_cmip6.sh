@@ -67,7 +67,7 @@ for FILE in "${directory}"/*; do
   # 3. run python to preprocess downloaded files
   conda activate cmip6-download
   #srun python3 prepare_wget.py ${scen} ${var} ${FILE}
-  WGETFILES='${datatemppath}/*'
+  WGETFILES=`${datatemppath}/*`
   echo $WGETFILES
   echo '${datatemppath}/*'
   exit
