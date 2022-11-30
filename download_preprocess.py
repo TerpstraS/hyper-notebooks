@@ -103,9 +103,8 @@ if __name__ == '__main__':
     PASSWORD = sys.argv[2]
 
     # connection is needed to be able to execute the wget scripts
-    ## TODO: crash program if this is unsuccessful
     lm = login(OPENID, PASSWORD)
-    print(lm.is_logged_on())
+
     experiment_id = sys.argv[3]
     variable = sys.argv[4]
     wget_var = sys.argv[5]  # this is including the whole path
@@ -145,9 +144,9 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
     # subprocess.check_output("bash {} -H -d {} {}".format(wget_var_path, OPENID, PASSWORD), cwd=DIR_DATATEMP)
     # subprocess.check_output("{}".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    process = subprocess.Popen([wget_var_path, "-H", "-d", "-i"], cwd=DIR_DATATEMP)
+    process = subprocess.Popen([wget_var_path, "-s"], cwd=DIR_DATATEMP)
     process.wait()
-    process = subprocess.Popen([wget_piControl_path, "-H", "-d", "-i"], cwd=DIR_DATATEMP)
+    process = subprocess.Popen([wget_piControl_path, "-s"], cwd=DIR_DATATEMP)
     process.wait()
     # can speed up above by waiting only once instead of twice
 
