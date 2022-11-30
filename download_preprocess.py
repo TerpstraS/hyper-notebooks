@@ -144,10 +144,10 @@ if __name__ == '__main__':
     os.chmod(wget_piControl_path, 0o750)
     # subprocess.check_output("bash {} -s".format(wget_var_path), cwd=DIR_DATATEMP)
     # subprocess.check_output("bash {} -s".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    process = subprocess.Popen(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    process.wait()
-    process = subprocess.Popen(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    process.wait()
+    process = subprocess.run(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    # process.wait()
+    process = subprocess.run(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    # process.wait()
     # can speed up above by waiting only once instead of twice
 
     # open files and preprocess them
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     ds_piControl = preprocessing_wrapper(ds_piControl)
 
     ## TODO: Concatenate files if necessary
-    
+
     # save and remove from memory to speed-up and save space
     ## TODO: make sure to save to correct file name (should be correct now)
     # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
