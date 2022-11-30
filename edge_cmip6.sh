@@ -57,8 +57,20 @@ for FILE in "${directory}"/*; do
   # Careful! Uses different conda environment as hypercc
   #WARNING: set correct conda environment (should be correct now)
   #NOTE: above implemented except step 2. Not tested, but should work.
+  #conda activate cmip6-download
+  #srun python3 download_preprocess.py ${OPENID} ${PASSWORD} ${scen} ${var} ${FILE}
+  #conda deactivate
+
+  # call
+  # 1. python script to find correct wget files and put them in datatemp/wget
+  # 2. run wget from bash script
+  # 3. run python to preprocess downloaded files
   conda activate cmip6-download
-  srun python3 download_preprocess.py ${OPENID} ${PASSWORD} ${scen} ${var} ${FILE}
+  srun python3 prepare_wget.py ${scen} ${var} ${FILE}
+  for FILE in "${datatemppath}/wget"/*; do
+    bash ${FILE} -s
+  done
+  srun python3 preprocess.py
   conda deactivate
 
   # apply mask to data

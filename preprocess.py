@@ -14,8 +14,6 @@ import sys
 
 import xarray as xr
 
-from pyesgf.logon import LogonManager
-
 import xmip.preprocessing as xmip_pre
 from xmip.postprocessing import match_metrics
 
@@ -23,19 +21,6 @@ from xmip.postprocessing import match_metrics
 # import warnings
 # from shapely.errors import ShapelyDeprecationWarning
 # warnings.filterwarnings("ignore", ccmioategory=ShapelyDeprecationWarning)
-
-
-def login(OPENID, PASSWORD):
-    lm = LogonManager()
-    if not lm.is_logged_on():
-        lm.logon_with_openid(
-            OPENID, password=PASSWORD, bootstrap=True
-        )
-
-    # check if it worked
-    if not lm.is_logged_on():
-        raise RuntimeError("Can't login to ESGF database. Exiting...")
-    return lm
 
 
 def preprocessing_wrapper(ds):
@@ -111,9 +96,9 @@ if __name__ == '__main__':
     wget_var = wget_var.split("/")[-1] # we want only file name, not path
 
     # directory where to save the downloaded files
-    DIR_DATATEMP = os.path.join("/nethome", "terps020", "cmip6", "datatemp")
-    if not os.path.isdir(DIR_DATATEMP):
-        os.makedirs(DIR_DATATEMP)
+    DIR_DATATEMP_WGET = os.path.join("/nethome", "terps020", "cmip6", "datatemp", "wget")
+    if not os.path.isdir(DIR_DATATEMP_WGET):
+        os.makedirs(DIR_DATATEMP_WGET)
     DIR_WGET_SCEN = os.path.join(
         "/nethome", "terps020", "cmip6", "wget", variable, experiment_id
     )
@@ -142,39 +127,45 @@ if __name__ == '__main__':
     wget_piControl_path = os.path.join(DIR_WGET_PICONTROL, wget_piControl)
     os.chmod(wget_var_path, 0o750)
     os.chmod(wget_piControl_path, 0o750)
-    # subprocess.check_output("bash {} -s".format(wget_var_path), cwd=DIR_DATATEMP)
-    # subprocess.check_output("bash {} -s".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    process = subprocess.call(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    # process.wait()
-    process = subprocess.call(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    # process.wait()
-    # can speed up above by waiting only once instead of twice
 
-    # open files and preprocess them
-    #TODO: ds_var_fname --> how to obtain this?
-    ds_var_fname = find_filename(DIR_DATATEMP, experiment_id)
-    ds_var_path = os.path.join(DIR_DATATEMP, ds_var_fname)
-    ds_var = xr.open_dataset(ds_var_path)
-    ds_var = preprocessing_wrapper(ds_var)
+    # copy wget script to datatemp directory so we can easily use them in the bash script
+    shutil.copy(wget_var_path, os.path.join(DIR_DATATEMP_WGET, wget_var))
+    shutil.copy(wget_piControl_path, os.path.join(DIR_DATATEMP_WGET, wget_piControl))
 
-    ## TODO: Concatenate files if necessary
 
-    # save and remove from memory to speed-up and save space
-    ## TODO: make sure to save to correct file name (should be correct now)
-    ds_var_fname_save = ".".join(wget_var.split(".")[:-1]) + ".nc"
-    ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname_save))
-    del ds_var
-
-    ds_piControl_fname = find_filename(DIR_DATATEMP, "piControl")
-    ds_piControl_path = os.path.join(DIR_DATATEMP, ds_piControl_fname)
-    ds_piControl = xr.open_dataset(ds_piControl_path)
-    ds_piControl = preprocessing_wrapper(ds_piControl)
-
-    ## TODO: Concatenate files if necessary
-
-    # save and remove from memory to speed-up and save space
-    ## TODO: make sure to save to correct file name (should be correct now)
-    # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
-    ds_piControl_fname_save = ".".join(wget_piControl.split(".")[:-1]) + ".nc"
-    ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname_save))
-    del ds_piControl
+    # # subprocess.check_output("bash {} -s".format(wget_var_path), cwd=DIR_DATATEMP)
+    # # subprocess.check_output("bash {} -s".format(wget_piControl_path), cwd=DIR_DATATEMP)
+    # process = subprocess.call(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    # # process.wait()
+    # process = subprocess.call(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
+    # # process.wait()
+    # # can speed up above by waiting only once instead of twice
+    #
+    # # open files and preprocess them
+    # #TODO: ds_var_fname --> how to obtain this?
+    # ds_var_fname = find_filename(DIR_DATATEMP, experiment_id)
+    # ds_var_path = os.path.join(DIR_DATATEMP, ds_var_fname)
+    # ds_var = xr.open_dataset(ds_var_path)
+    # ds_var = preprocessing_wrapper(ds_var)
+    #
+    # ## TODO: Concatenate files if necessary
+    #
+    # # save and remove from memory to speed-up and save space
+    # ## TODO: make sure to save to correct file name (should be correct now)
+    # ds_var_fname_save = ".".join(wget_var.split(".")[:-1]) + ".nc"
+    # ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname_save))
+    # del ds_var
+    #
+    # ds_piControl_fname = find_filename(DIR_DATATEMP, "piControl")
+    # ds_piControl_path = os.path.join(DIR_DATATEMP, ds_piControl_fname)
+    # ds_piControl = xr.open_dataset(ds_piControl_path)
+    # ds_piControl = preprocessing_wrapper(ds_piControl)
+    #
+    # ## TODO: Concatenate files if necessary
+    #
+    # # save and remove from memory to speed-up and save space
+    # ## TODO: make sure to save to correct file name (should be correct now)
+    # # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
+    # ds_piControl_fname_save = ".".join(wget_piControl.split(".")[:-1]) + ".nc"
+    # ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname_save))
+    # del ds_piControl

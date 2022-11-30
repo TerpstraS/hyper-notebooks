@@ -2,25 +2,15 @@
 # -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------
 # Created By: Sjoerd Terpstra
-# Created Date: 29/11/2022
+# Created Date: 30/11/2022
 # ---------------------------------------------------------------------------
 """ download_esgf.py
-Download climate data from wget scripts and preprocess using xmip
+Select wget scripts and put in right directory
 """
 # ---------------------------------------------------------------------------
 import os
-import subprocess
+import shutil
 import sys
-
-import xarray as xr
-
-import xmip.preprocessing as xmip_pre
-from xmip.postprocessing import match_metrics
-
-# import shapely
-# import warnings
-# from shapely.errors import ShapelyDeprecationWarning
-# warnings.filterwarnings("ignore", ccmioategory=ShapelyDeprecationWarning)
 
 
 def preprocessing_wrapper(ds):
@@ -83,16 +73,9 @@ def find_filename(dir, experiment_id):
 
 if __name__ == '__main__':
 
-    # get essential info from bash script as input arguments
-    OPENID = sys.argv[1]
-    PASSWORD = sys.argv[2]
-
-    # connection is needed to be able to execute the wget scripts
-    # lm = login(OPENID, PASSWORD)
-
-    experiment_id = sys.argv[3]
-    variable = sys.argv[4]
-    wget_var = sys.argv[5]  # this is including the whole path
+    experiment_id = sys.argv[1]
+    variable = sys.argv[2]
+    wget_var = sys.argv[3]  # this is including the whole path
     wget_var = wget_var.split("/")[-1] # we want only file name, not path
 
     # directory where to save the downloaded files
@@ -131,41 +114,3 @@ if __name__ == '__main__':
     # copy wget script to datatemp directory so we can easily use them in the bash script
     shutil.copy(wget_var_path, os.path.join(DIR_DATATEMP_WGET, wget_var))
     shutil.copy(wget_piControl_path, os.path.join(DIR_DATATEMP_WGET, wget_piControl))
-
-
-    # # subprocess.check_output("bash {} -s".format(wget_var_path), cwd=DIR_DATATEMP)
-    # # subprocess.check_output("bash {} -s".format(wget_piControl_path), cwd=DIR_DATATEMP)
-    # process = subprocess.call(["bash", wget_var_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    # # process.wait()
-    # process = subprocess.call(["bash", wget_piControl_path, "-s", "-d"], cwd=DIR_DATATEMP)
-    # # process.wait()
-    # # can speed up above by waiting only once instead of twice
-    #
-    # # open files and preprocess them
-    # #TODO: ds_var_fname --> how to obtain this?
-    # ds_var_fname = find_filename(DIR_DATATEMP, experiment_id)
-    # ds_var_path = os.path.join(DIR_DATATEMP, ds_var_fname)
-    # ds_var = xr.open_dataset(ds_var_path)
-    # ds_var = preprocessing_wrapper(ds_var)
-    #
-    # ## TODO: Concatenate files if necessary
-    #
-    # # save and remove from memory to speed-up and save space
-    # ## TODO: make sure to save to correct file name (should be correct now)
-    # ds_var_fname_save = ".".join(wget_var.split(".")[:-1]) + ".nc"
-    # ds_var.to_netcdf(os.path.join(DIR_DATATEMP, ds_var_fname_save))
-    # del ds_var
-    #
-    # ds_piControl_fname = find_filename(DIR_DATATEMP, "piControl")
-    # ds_piControl_path = os.path.join(DIR_DATATEMP, ds_piControl_fname)
-    # ds_piControl = xr.open_dataset(ds_piControl_path)
-    # ds_piControl = preprocessing_wrapper(ds_piControl)
-    #
-    # ## TODO: Concatenate files if necessary
-    #
-    # # save and remove from memory to speed-up and save space
-    # ## TODO: make sure to save to correct file name (should be correct now)
-    # # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
-    # ds_piControl_fname_save = ".".join(wget_piControl.split(".")[:-1]) + ".nc"
-    # ds_piControl.to_netcdf(os.path.join(DIR_DATATEMP, ds_piControl_fname_save))
-    # del ds_piControl
