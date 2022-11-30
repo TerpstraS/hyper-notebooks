@@ -157,6 +157,8 @@ if __name__ == '__main__':
     ds_var = xr.open_dataset(ds_var_path)
     ds_var = preprocessing_wrapper(ds_var)
 
+    ## TODO: Concatenate files if necessary
+
     # save and remove from memory to speed-up and save space
     ## TODO: make sure to save to correct file name (should be correct now)
     ds_var_fname_save = ".".join(wget_var.split(".")[:-1]) + ".nc"
@@ -168,6 +170,8 @@ if __name__ == '__main__':
     ds_piControl = xr.open_dataset(ds_piControl_path)
     ds_piControl = preprocessing_wrapper(ds_piControl)
 
+    ## TODO: Concatenate files if necessary
+    
     # save and remove from memory to speed-up and save space
     ## TODO: make sure to save to correct file name (should be correct now)
     # ds_piControl_fname = "CMIP.source_id.experiment_id.member_id.table_id.variable_id.gr.nc"
