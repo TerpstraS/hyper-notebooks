@@ -42,6 +42,9 @@ option_extension=""
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
+# make sure that python can find wget
+export PYTHONPATH=$PYTHONPATH:/usr/bin
+
 # loop through wget scripts in the directory of the given scenario
 directory="${wgetpath}/${var}/${scen}"
 for FILE in "${directory}"/*; do
