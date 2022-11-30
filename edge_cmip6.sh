@@ -42,9 +42,6 @@ option_extension=""
 ### clear cache - otherwise it fills the whole hard drive...
 rm -f hypercc-cache.hdf5 cache.lock hypercc-cache.db
 
-# make sure that python can find wget
-export PYTHONPATH=$PYTHONPATH:/usr/bin
-
 # loop through wget scripts in the directory of the given scenario
 directory="${wgetpath}/${var}/${scen}"
 for FILE in "${directory}"/*; do
@@ -61,8 +58,6 @@ for FILE in "${directory}"/*; do
   #WARNING: set correct conda environment (should be correct now)
   #NOTE: above implemented except step 2. Not tested, but should work.
   conda activate cmip6-download
-  # make sure that python can find wget
-  export PYTHONPATH=$PYTHONPATH:/usr/bin
   srun python3 download_preprocess.py ${OPENID} ${PASSWORD} ${scen} ${var} ${FILE}
   conda deactivate
 
