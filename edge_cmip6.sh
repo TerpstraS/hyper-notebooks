@@ -61,6 +61,8 @@ for FILE in "${directory}"/*; do
   #WARNING: set correct conda environment (should be correct now)
   #NOTE: above implemented except step 2. Not tested, but should work.
   conda activate cmip6-download
+  # make sure that python can find wget
+  export PYTHONPATH=$PYTHONPATH:/usr/bin
   srun python3 download_preprocess.py ${OPENID} ${PASSWORD} ${scen} ${var} ${FILE}
   conda deactivate
 
