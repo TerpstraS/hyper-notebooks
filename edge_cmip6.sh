@@ -68,9 +68,9 @@ for FILE in "${directory}"/*; do
   conda activate cmip6-download
   #srun python3 prepare_wget.py ${scen} ${var} ${FILE}
   WGETFILES='${datatemppath}/*'
-  echo WGETFILES
+  echo $WGETFILES
   exit
-  for WGETFILE in WGETFILES; do
+  for WGETFILE in $WGETFILES; do
     if [[ -f ${WGETFILE} ]]; then
     bash ${WGETFILE} -s
     fi
