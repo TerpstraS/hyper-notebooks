@@ -69,7 +69,7 @@ for FILE in "${directory}"/*; do
   srun python3 prepare_wget.py ${scen} ${var} ${FILE}
   WGETFILES=`${datatemppath}/*`
   echo "${WGETFILES}"
-  for WGETFILE in $WGETFILES; do
+  for WGETFILE in `${datatemppath}/*`; do
     if [[ -f ${WGETFILE} ]]; then
     echo "${WGETFILE}"
     # bash ${WGETFILE} -s
