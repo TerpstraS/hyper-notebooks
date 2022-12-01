@@ -68,6 +68,7 @@ for FILE in "${directory}"/*; do
   conda activate cmip6-download
   srun python3 prepare_wget.py ${scen} ${var} ${FILE}
   WGETFILES=`${datatemppath}/*`
+  echo $WGETFILES
   for WGETFILE in $WGETFILES; do
     if [[ -f ${WGETFILE} ]]; then
     echo $WGETFILE
