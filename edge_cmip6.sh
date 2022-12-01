@@ -71,7 +71,7 @@ for FILE in "${directory}"/*; do
   for WGETFILE in $WGETFILES; do
     if [[ -f ${WGETFILE} ]]; then
     echo $WGETFILE
-    bash ${WGETFILE} -s
+    # bash ${WGETFILE} -s
     fi
   done
   exit
